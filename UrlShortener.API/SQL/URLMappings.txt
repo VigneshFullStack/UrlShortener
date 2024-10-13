@@ -1,0 +1,7 @@
+﻿CREATE TABLE URLMappings (
+    ShortUrl NVARCHAR(900) NOT NULL,
+    LongUrl NVARCHAR(MAX) NOT NULL,
+    CreatedDate DATETIME2 NOT NULL,
+    AccessCount INT NOT NULL,
+    PRIMARY KEY (ShortUrl) -- ShortUrl is the primary key
+);
