@@ -4,13 +4,9 @@ using UrlShortener.API.Models;
 
 namespace UrlShortener.API.Repositories
 {
-    public class UrlMappingRepository : IUrlMappingRepository
+    public class UrlMappingRepository(UrlShortenerDbContext dbContext) : IUrlMappingRepository
     {
-        public readonly UrlShortenerDbContext _dbContext;
-        public UrlMappingRepository(UrlShortenerDbContext dbContext)
-        { 
-            _dbContext = dbContext;
-        }
+        public readonly UrlShortenerDbContext _dbContext = dbContext;
 
         public async Task AddAsync(URLMapping urlMapping)
         {

@@ -5,21 +5,12 @@ using UrlShortener.API.Repositories;
 
 namespace UrlShortener.API.Services
 {
-    public class UrlShortenerService : IUrlShortenerService
-    {
-        private readonly IUrlMappingRepository _repository;
-        //private readonly IConnectionMultiplexer _redis;
-        //private readonly IDatabase _cache;
-        public UrlShortenerService(
-            IUrlMappingRepository repository
+    public class UrlShortenerService(
+        IUrlMappingRepository repository
             //, IConnectionMultiplexer redis
-            ) 
-        { 
-            
-            _repository = repository;
-            //_redis = redis;
-            //_cache = _redis.GetDatabase();
-        }
+            ) : IUrlShortenerService
+    {
+        private readonly IUrlMappingRepository _repository = repository;
 
         public async Task<string> ShortenUrlAsync(string longUrl)
         {

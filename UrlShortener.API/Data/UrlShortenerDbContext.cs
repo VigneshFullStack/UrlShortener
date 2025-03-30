@@ -3,13 +3,8 @@ using UrlShortener.API.Models;
 
 namespace UrlShortener.API.Data
 {
-    public class UrlShortenerDbContext : DbContext
+    public class UrlShortenerDbContext(DbContextOptions<UrlShortenerDbContext> options) : DbContext(options)
     {
-        public UrlShortenerDbContext(DbContextOptions<UrlShortenerDbContext> options) : base(options)
-        {
-            
-        }
-
         public DbSet<URLMapping> URLMappings { get; set; }
     }
 }
