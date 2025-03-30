@@ -12,6 +12,11 @@ namespace UrlShortener.API.Services
     {
         private readonly IUrlMappingRepository _repository = repository;
 
+        public async Task<List<URLMapping>> GetAllUrlsAsync()
+        {
+            return await _repository.GetAllAsync();
+        }
+
         public async Task<string> ShortenUrlAsync(string longUrl)
         {
             // Generate a unique short URL using Base62 encoding

@@ -11,6 +11,13 @@ namespace UrlShortener.API.Controllers
     {
         private readonly IUrlShortenerService _service = service;
 
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllUrls()
+        {
+            var urls = await _service.GetAllUrlsAsync();
+            return Ok(urls);
+        }
+
         [HttpPost("shorten")]
         public async Task<IActionResult> ShortenUrl([FromBody] UrlRequest request)
         {

@@ -8,6 +8,14 @@ namespace UrlShortener.API.Repositories
     {
         public readonly UrlShortenerDbContext _dbContext = dbContext;
 
+        public async Task<List<URLMapping>> GetAllAsync()
+        {
+            return await _dbContext.URLMappings
+                .AsNoTracking()
+                .OrderByDescending(u => u.CreatedDate)
+                .ToListAsync();
+        }
+
         public async Task AddAsync(URLMapping urlMapping)
         {
             await _dbContext.URLMappings.AddAsync(urlMapping);

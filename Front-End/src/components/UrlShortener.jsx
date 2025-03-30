@@ -1,86 +1,120 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const UrlShortener = () => {
   const [longUrl, setLongUrl] = useState('');
   const [shortUrl, setShortUrl] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
+  const [urlList, setUrlList] = useState([]);
+
+  useEffect(() => {
+    fetchAllUrls();
+
+    // Refresh the table when the user comes back to the tab
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchAllUrls();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  const fetchAllUrls = async () => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/all`);
+      setUrlList(response.data);
+    } catch (err) {
+      console.error('Error fetching URLs:', err);
+    }
+  };
 
   const handleShorten = async () => {
     try {
       setError('');
-      setShortUrl(''); 
-      setLoading(true); 
-      
+      setShortUrl('');
+      setLoading(true);
+
       const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/shorten`, { longUrl });
       setShortUrl(response.data.shortUrl);
-      console.log("shortUrl : ", response.data.shortUrl);
+      fetchAllUrls(); // Refresh the list after shortening
     } catch (err) {
       setError('Failed to shorten URL.');
       console.error(err);
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
+  const handleClear = () => {
+    setLongUrl('');
+    setShortUrl('');
+    setError('');
+  };
+
   return (
-    <div style={styles.container}>
+    <div className="container mt-4 mb-5 p-4 border rounded shadow text-center">
       <h2>URL Shortener</h2>
       <input
         type="text"
+        className="form-control my-3 mx-auto"
+        style={{ maxWidth: '500px' }}
         placeholder="Enter long URL"
         value={longUrl}
         onChange={(e) => setLongUrl(e.target.value)}
-        style={styles.input}
       />
-      <button onClick={handleShorten} style={styles.button} disabled={loading}>
-        {loading ? 'Shortening...' : 'Shorten'}
-      </button>
+
+      <div className="mb-3">
+        <button onClick={handleShorten} className="btn btn-success me-2" disabled={loading}>
+          {loading ? 'Shortening...' : 'Shorten'}
+        </button>
+        <button onClick={handleClear} className="btn btn-danger">Clear</button>
+      </div>
+
       {shortUrl && (
-        <div style={styles.result}>
-          <p>
-            Short URL: <a href={`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/${shortUrl}`} target="_blank" rel="noopener noreferrer">{shortUrl}</a>
-          </p>
+        <div className="alert alert-info" role="alert">
+          Short URL:{' '}
+          <a href={`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/${shortUrl}`} target="_blank" rel="noopener noreferrer">
+            {shortUrl}
+          </a>
         </div>
       )}
-      {error && <p style={styles.error}>{error}</p>}
+      {error && <p className="text-danger">{error}</p>}
+
+      <h3 className='mt-4'>Shortened URLs</h3>
+      <table className="table table-bordered table-striped mt-3">
+        <thead className="table-dark">
+          <tr>
+            <th>Short URL</th>
+            <th>Long URL</th>
+            <th>Access Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {urlList.map((url) => (
+            <tr key={url.shortUrl}>
+              <td>
+                <a
+                  href={`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/${url.shortUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {url.shortUrl}
+                </a>
+              </td>
+              <td>{url.longUrl}</td>
+              <td>{url.accessCount}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    margin: '50px auto',
-    padding: '20px',
-    maxWidth: '500px',
-    textAlign: 'center',
-    border: '1px solid #ccc',
-    borderRadius: '10px',
-    boxShadow: '2px 2px 12px #aaa',
-  },
-  input: {
-    width: '80%',
-    padding: '10px',
-    marginBottom: '10px',
-    borderRadius: '5px',
-    border: '1px solid #ddd',
-  },
-  button: {
-    padding: '10px 20px',
-    borderRadius: '5px',
-    border: 'none',
-    backgroundColor: '#28a745',
-    color: '#fff',
-    cursor: 'pointer',
-  },
-  result: {
-    marginTop: '20px',
-  },
-  error: {
-    color: 'red',
-    marginTop: '10px',
-  },
 };
 
 export default UrlShortener;
