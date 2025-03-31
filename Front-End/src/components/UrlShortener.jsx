@@ -8,11 +8,11 @@ const UrlShortener = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [urlList, setUrlList] = useState([]);
+  const [tableLoading, setTableLoading] = useState(true);
 
   useEffect(() => {
     fetchAllUrls();
 
-    // Refresh the table when the user comes back to the tab
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         fetchAllUrls();
@@ -26,11 +26,14 @@ const UrlShortener = () => {
   }, []);
 
   const fetchAllUrls = async () => {
+    setTableLoading(true);
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/all`);
       setUrlList(response.data);
     } catch (err) {
       console.error('Error fetching URLs:', err);
+    } finally {
+      setTableLoading(false);
     }
   };
 
@@ -42,7 +45,7 @@ const UrlShortener = () => {
 
       const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/shorten`, { longUrl });
       setShortUrl(response.data.shortUrl);
-      fetchAllUrls(); // Refresh the list after shortening
+      fetchAllUrls();
     } catch (err) {
       setError('Failed to shorten URL.');
       console.error(err);
@@ -87,32 +90,40 @@ const UrlShortener = () => {
       {error && <p className="text-danger">{error}</p>}
 
       <h3 className='mt-4'>Shortened URLs</h3>
-      <table className="table table-bordered table-striped mt-3">
-        <thead className="table-dark">
-          <tr>
-            <th>Short URL</th>
-            <th>Long URL</th>
-            <th>Access Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {urlList.map((url) => (
-            <tr key={url.shortUrl}>
-              <td>
-                <a
-                  href={`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/${url.shortUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {url.shortUrl}
-                </a>
-              </td>
-              <td>{url.longUrl}</td>
-              <td>{url.accessCount}</td>
+      {tableLoading ? (
+        <div className="text-center my-3">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : (
+        <table className="table table-bordered table-striped mt-3">
+          <thead className="table-dark">
+            <tr>
+              <th>Short URL</th>
+              <th>Long URL</th>
+              <th>Access Count</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {urlList.map((url) => (
+              <tr key={url.shortUrl}>
+                <td>
+                  <a
+                    href={`${process.env.REACT_APP_API_BASE_URL}/UrlShortener/${url.shortUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {url.shortUrl}
+                  </a>
+                </td>
+                <td>{url.longUrl}</td>
+                <td>{url.accessCount}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
