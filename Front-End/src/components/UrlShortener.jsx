@@ -98,7 +98,7 @@ const UrlShortener = () => {
         </div>
       ) : (
         <table className="table table-bordered table-striped mt-3">
-          <thead className="table-dark">
+          <thead className="table-primary">
             <tr>
               <th>Short URL</th>
               <th>Long URL</th>

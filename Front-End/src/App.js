@@ -19,9 +19,9 @@ function App() {
 
 const styles = {
   header: {
-    backgroundColor: '#282c34',
+    backgroundColor: 'rgba(13, 110, 253, 0.25)',
     padding: '20px',
-    color: 'white',
+    color: 'black',
     textAlign: 'center',
   },
   main: {
